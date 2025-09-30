@@ -1,1 +1,1 @@
-# ByteHunters - conflict new file 1
+# ByteHunters - conflict new file 2
