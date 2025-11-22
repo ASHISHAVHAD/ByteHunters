@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteHunters | Automated Fact Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <h1 class="logo"><a href="{{ url_for('home') }}" style="text-decoration:none; color:inherit;">ByteHunters<span class="logo-dot">.ai</span></a></h1>
+            <nav>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('home') }}#features">Features</a>
+                
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                    <a href="{{ url_for('input_page') }}" class="cta-button nav-button">Verify Now</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('signup') }}" class="cta-button nav-button">Sign Up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ByteHunters Claim Verification System. Powered by AI.</p>
+        </div>
+    </footer>
+
+    <script>
+        const scrollElements = document.querySelectorAll(".scroll-reveal");
+        const elementInView = (el, dividend = 1) => {
+            const elementTop = el.getBoundingClientRect().top;
+            return (elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend);
+        };
+        const displayScrollElement = (element) => { element.classList.add("scrolled"); };
+        const handleScrollAnimation = () => {
+            scrollElements.forEach((el) => { if (elementInView(el, 1.25)) { displayScrollElement(el); } });
+        };
+        window.addEventListener("scroll", handleScrollAnimation);
+        window.addEventListener("load", handleScrollAnimation);
+    </script>
+</body>
+</html>

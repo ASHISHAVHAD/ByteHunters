@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .input-wrapper { padding: 80px 20px; text-align: center; background-color: #f4f6f8; min-height: 80vh; }
+    .input-card { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    
+    .tabs { display: flex; justify-content: center; margin-bottom: 30px; border-bottom: 2px solid #eee; }
+    .tab-btn { padding: 15px 30px; background: none; border: none; font-size: 1.1em; cursor: pointer; font-weight: bold; color: #aaa; transition: 0.3s; }
+    .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
+    
+    .input-area textarea, .input-area input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 1em; margin-bottom: 20px; transition: 0.3s; }
+    .input-area textarea:focus, .input-area input:focus { border-color: var(--primary-color); outline: none; }
+    
+    .hidden { display: none; }
+</style>
+
+<div class="input-wrapper">
+    <div class="input-card scroll-reveal">
+        <h2>Start Your Verification</h2>
+        <p style="color: #777; margin-bottom: 30px;">Choose your input method below.</p>
+        
+        <div class="tabs">
+            <button class="tab-btn active" type="button" onclick="switchTab('url')">Web Link</button>
+            <button class="tab-btn" type="button" onclick="switchTab('text')">Raw Text</button>
+        </div>
+
+        <form action="{{ url_for('input_page') }}" method="POST" id="verifyForm">
+            <input type="hidden" name="input_type" id="input_type" value="url">
+
+            <div id="url-section" class="input-area">
+                <input type="url" name="content" id="url-input" placeholder="Paste website link here (https://...)" required>
+            </div>
+
+            <div id="text-section" class="input-area hidden">
+                <textarea name="content" id="text-input" rows="8" placeholder="Paste the claim or article text here..." disabled></textarea>
+            </div>
+
+            <div id="loading" class="hidden" style="margin: 20px 0;">
+                <div style="font-size: 2em;">⚙️</div>
+                <p>ByteHunters AI is analyzing... please wait.</p>
+            </div>
+
+            <button type="submit" class="cta-button large" onclick="showLoader()">Verify Facts</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function switchTab(type) {
+        document.getElementById('input_type').value = type;
+        const urlSec = document.getElementById('url-section');
+        const txtSec = document.getElementById('text-section');
+        const urlInp = document.getElementById('url-input');
+        const txtInp = document.getElementById('text-input');
+        const tabs = document.querySelectorAll('.tab-btn');
+
+        if(type === 'url') {
+            urlSec.classList.remove('hidden');
+            txtSec.classList.add('hidden');
+            urlInp.disabled = false;
+            txtInp.disabled = true;
+            urlInp.required = true;
+            txtInp.required = false;
+            tabs[0].classList.add('active');
+            tabs[1].classList.remove('active');
+        } else {
+            urlSec.classList.add('hidden');
+            txtSec.classList.remove('hidden');
+            urlInp.disabled = true;
+            txtInp.disabled = false;
+            urlInp.required = false;
+            txtInp.required = true;
+            tabs[0].classList.remove('active');
+            tabs[1].classList.add('active');
+        }
+    }
+
+    function showLoader() {
+        const type = document.getElementById('input_type').value;
+        const val = type === 'url' ? document.getElementById('url-input').value : document.getElementById('text-input').value;
+        if(val && val.trim() !== "") {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}
