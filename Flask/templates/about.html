@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+
+<header class="about-hero">
+    <div class="container">
+        <h1 class="scroll-reveal">Decoding the <span class="gradient-text">Digital Noise</span></h1>
+        <p class="scroll-reveal delay-1">
+            We are ByteHunters. We build the tools that separate signal from static and truth from fiction.
+        </p>
+    </div>
+</header>
+
+<section class="story-section scroll-reveal delay-2">
+    <h2>The Mission</h2>
+    <div class="story-card">
+        <p>
+            In an era where information travels faster than verification, the line between fact and fabrication has blurred. 
+            <strong>We refused to accept that.</strong>
+        </p>
+        <br>
+        <p>
+            Born in the dorms of <strong>IIT Bombay</strong>, ByteHunters started as a late-night debate about AI ethics and evolved into a robust system designed to restore trust in digital media. By combining advanced Web Scraping with the reasoning capabilities of Large Language Models (Gemini), we provide a transparent layer of verification for everyone.
+        </p>
+    </div>
+</section>
+
+<section class="team-section">
+    <h2>Meet the Hunters</h2>
+    <div class="team-grid">
+        
+        <div class="hunter-card scroll-reveal delay-3">
+            <div class="img-container">
+                <img src="{{ url_for('static', filename='images/member1.jpg') }}" alt="Team Member">
+            </div>
+            <div class="card-content">
+                <div class="hunter-name">Ashish Avhad</div>
+                <div class="hunter-role">Backend Developer</div>
+                <p class="hunter-bio">"Turning caffeine into code and complex problems into elegant solutions."</p>
+                <div class="iitb-badge">🏛️ IIT Bombay MS CSE '28</div>
+            </div>
+        </div>
+
+        <div class="hunter-card scroll-reveal delay-4">
+            <div class="img-container">
+                <img src="{{ url_for('static', filename='images/member2.jpg') }}" alt="Team Member">
+            </div>
+            <div class="card-content">
+                <div class="hunter-name">Avirup Chakraborty</div>
+                <div class="hunter-role">AI & LLM Architect</div>
+                <p class="hunter-bio">"Teaching machines to think critically so humans don't have to guess."</p>
+                <div class="iitb-badge">🏛️ IIT Bombay MS CSE'28</div>
+            </div>
+        </div>
+
+        <div class="hunter-card scroll-reveal delay-5">
+            <div class="img-container">
+                <img src="{{ url_for('static', filename='images/member3.jpg') }}" alt="Team Member">
+            </div>
+            <div class="card-content">
+                <div class="hunter-name">Shivam Singh</div>
+                <div class="hunter-role">Data & DevOps Engineer</div>
+                <p class="hunter-bio">"Building the infrastructure that keeps truth accessible 24/7."</p>
+                <div class="iitb-badge">🏛️ IIT Bombay MS CSE '28</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section style="text-align: center; padding-bottom: 80px; color: #888;">
+    <div class="container">
+        <p>Built with Flask, MySQL & Google Gemini API.</p>
+        <br>
+        <a href="{{ url_for('input_page') }}" class="cta-button primary">Test Our Engine &rarr;</a>
+    </div>
+</section>
+
+{% endblock %}

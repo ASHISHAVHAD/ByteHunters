@@ -1,0 +1,176 @@
+:root {
+    --brand-blue: #00bcd4;
+    --brand-dark: #1a1a2e;
+    --iitb-accent: #800000;
+    --text-gray: #636e72;
+}
+
+.about-hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+    text-align: center;
+    padding: 100px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero::before {
+    content: "{ }";
+    position: absolute;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 20rem;
+    color: rgba(0, 188, 212, 0.05);
+    top: -50px;
+    left: -50px;
+    transform: rotate(-15deg);
+}
+
+.about-hero h1 {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--brand-dark);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.gradient-text {
+    background: linear-gradient(45deg, #00bcd4, #2980b9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about-hero p {
+    font-size: 1.4rem;
+    color: var(--text-gray);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+}
+
+.story-section {
+    padding: 80px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.story-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: var(--brand-dark);
+}
+
+.story-card {
+    background: white;
+    padding: 40px;
+    border-left: 5px solid var(--brand-blue);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-align: left;
+    border-radius: 0 15px 15px 0;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+}
+
+.team-section {
+    background-color: #fdfdfd;
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.team-section h2 {
+    font-size: 3rem;
+    margin-bottom: 60px;
+    color: var(--brand-dark);
+}
+
+.team-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hunter-card {
+    background: white;
+    width: 320px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.hunter-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0, 188, 212, 0.2);
+}
+
+.img-container {
+    height: 320px;
+    overflow: hidden;
+    position: relative;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.hunter-card:hover .img-container img {
+    transform: scale(1.1);
+}
+
+.img-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.card-content {
+    padding: 25px;
+    text-align: left;
+}
+
+.hunter-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    margin-bottom: 5px;
+}
+
+.hunter-role {
+    font-size: 0.9rem;
+    color: var(--brand-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.hunter-bio {
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.iitb-badge {
+    display: inline-block;
+    background: #eee;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #555;
+}
