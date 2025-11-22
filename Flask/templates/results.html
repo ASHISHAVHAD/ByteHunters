@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-wrapper">
+    <div class="container">
+        <div class="results-header scroll-reveal">
+            <div class="results-title">
+                <h2>Analysis Report</h2>
+                <p>We found <strong>{{ result.claims|length }}</strong> verifiable claims in your input.</p>
+            </div>
+            
+            <div class="action-bar">
+              
+                <form action="{{ url_for('save_result') }}" method="POST">
+                    <input type="hidden" name="content" value="{{ original_content }}">
+                    <input type="hidden" name="input_type" value="{{ input_type }}">
+                  
+                    <input type="hidden" name="json_data" value="{{ result|tojson|forceescape }}">
+                    <button type="submit" class="cta-button nav-button">
+                        💾 Save to History
+                    </button>
+                </form>
+
+                <form action="{{ url_for('download_report') }}" method="POST">
+                    <input type="hidden" name="json_data" value="{{ result|tojson|forceescape }}">
+                    <button type="submit" class="cta-button nav-button" style="background-color: #2d3436;">
+                        📄 Download PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if result.error %}
+            <div class="alert alert-error scroll-reveal">
+                <h3>Analysis Failed</h3>
+                <p>{{ result.error }}</p>
+            </div>
+        {% else %}
+
+            <div class="claims-list">
+                {% for claim in result.claims %}
+                <div class="claim-card status-{{ claim.claim_validity }} scroll-reveal delay-{{ loop.index }}">
+
+                    <span class="badge bg-{{ claim.claim_validity }}">
+                        {{ claim.claim_validity }}
+                    </span>
+
+                    <h3 class="claim-text">"{{ claim.claim_text }}"</h3>
+
+                    <div class="claim-meta">
+                        <div class="confidence-wrapper">
+                            <span>Confidence:</span>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ claim.confidence }}%;"></div>
+                            </div>
+                            <strong>{{ claim.confidence }}%</strong>
+                        </div>
+                        <div class="category-tag">
+                            📂 {{ claim.category }}
+                        </div>
+                    </div>
+
+                    <div class="claim-reasoning">
+                        <strong>AI Analysis:</strong> {{ claim.reasoning }}
+                    </div>
+
+                    <div class="sources-section">
+                        <div class="sources-title">Verified Sources</div>
+                        {% for source in claim.sources_cited %}
+                            <div class="source-item">
+                                🔗 
+                                <a href="{{ source.source_link }}" target="_blank" class="source-link">
+                                    {{ source.source_name }}
+                                </a>
+                                <span style="color: #b2bec3; font-size: 0.85em;">
+                                    (Credibility: {{ source.source_credibility }}/100)
+                                </span>
+                            </div>
+                        {% else %}
+                            <div class="source-item" style="color: #aaa;">No specific web sources cited.</div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{{ url_for('input_page') }}" style="color: #666; text-decoration: none;">&larr; Analyze Another Source</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
