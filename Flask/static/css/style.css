@@ -446,3 +446,96 @@ section {
     color: #008ba3;
     text-decoration: underline;
 }
+
+
+.ticker-section {
+    padding: 50px 0;
+    background-color: #f8f9fa;
+    overflow: hidden; 
+}
+
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 20px 0;
+}
+
+.ticker-track {
+    display: inline-block;
+    
+    animation: scroll 80s linear infinite; 
+}
+
+
+.ticker-wrap:hover .ticker-track {
+    animation-play-state: paused; 
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+
+.ticker-card {
+    display: inline-block;
+    width: 300px;
+    background: white;
+    margin: 0 15px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    white-space: normal;
+    vertical-align: top;
+    border-top: 5px solid #ccc;
+    transition: transform 0.2s;
+}
+
+.ticker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+
+.ticker-card.status-True { border-top-color: #2ed573; }
+.ticker-card.status-False { border-top-color: #ff4757; }
+.ticker-card.status-Uncertain { border-top-color: #ffa502; }
+
+.ticker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ticker-conf {
+    font-size: 0.75em;
+    color: #888;
+    font-weight: bold;
+}
+
+.ticker-text {
+    font-size: 0.95em;
+    color: #444;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    height: 60px; 
+    overflow: hidden;
+}
+
+.ticker-btn {
+    width: 100%;
+    padding: 8px;
+    background: #f1f2f6;
+    border: none;
+    border-radius: 5px;
+    color: #00bcd4;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ticker-btn:hover {
+    background: #e1f5fe;
+}
