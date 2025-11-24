@@ -43,7 +43,6 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    # Fetch last 10 reports
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT json_result, created_at FROM verification_history ORDER BY created_at DESC LIMIT 10")
     recent_reports = cursor.fetchall()
@@ -52,14 +51,11 @@ def home():
     recent_claims = []
     for report in recent_reports:
         try:
-            # Parse JSON if it's stored as a string
             data = report['json_result']
             if isinstance(data, str):
                 data = json.loads(data)
             
-            # Check if claims exist
             if data.get('claims') and isinstance(data['claims'], list):
-                # --- CHANGE IS HERE: Select up to the first 5 claims ---
                 top_claims = data['claims'][:5] 
                 
                 for claim in top_claims:

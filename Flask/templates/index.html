@@ -12,7 +12,7 @@
 
     <div class="container hero-container">
         <div class="hero-text">
-            <div class="badge-pill" data-aos="fade-down">🚀 AI-Powered Verification v2.0</div>
+            <div class="badge-pill" data-aos="fade-down">AI-Powered Verification</div>
             <h1 data-aos="fade-up" data-aos-delay="100">
                 Truth is <span id="typed-text" class="highlight-text"></span>
             </h1>
@@ -31,7 +31,6 @@
             </div>
         </div>
         
-        <!-- Abstract Visual / Dashboard Preview -->
         <div class="hero-visual" data-aos="zoom-in" data-aos-delay="400">
             <div class="floating-card card-1">
                 <span>🔍 Claim Detected</span>
@@ -47,7 +46,6 @@
     </div>
 </section>
 
-<!-- STATS BAR -->
 <div class="stats-bar">
     <div class="container stats-grid">
         <div class="stat-item" data-aos="fade-up">
@@ -65,10 +63,9 @@
     </div>
 </div>
 
-<!-- RECENT ACTIVITY TICKER (Your Existing Ticker) -->
 <section class="ticker-section">
     <div class="container">
-        <h3 class="section-title" data-aos="fade-up">🔥 Live Verification Feed</h3>
+        <h3 class="section-title" data-aos="fade-up">Recently Verified</h3>
     </div>
     <div class="ticker-wrap">
         <div class="ticker-track">
@@ -88,24 +85,20 @@
     </div>
 </section>
 
-<!-- HOW IT WORKS (Cards) -->
 <section id="how-it-works" class="features-section">
     <div class="container">
         <h3 class="section-title" data-aos="fade-up">The ByteHunters Engine</h3>
         <div class="feature-grid">
-            <!-- Card 1 -->
             <div class="glass-card" data-aos="flip-left">
                 <div class="icon-box">📥</div>
                 <h4>Ingestion</h4>
                 <p>We scrape URLs or parse raw text to isolate factual assertions from opinion.</p>
             </div>
-            <!-- Card 2 -->
             <div class="glass-card" data-aos="flip-left" data-aos-delay="100">
                 <div class="icon-box">🧠</div>
                 <h4>LLM Reasoning</h4>
                 <p>Gemini AI cross-references claims against a vast knowledge base of verified sources.</p>
             </div>
-            <!-- Card 3 -->
             <div class="glass-card" data-aos="flip-left" data-aos-delay="200">
                 <div class="icon-box">📊</div>
                 <h4>Report Gen</h4>
@@ -115,7 +108,6 @@
     </div>
 </section>
 
-<!-- MODAL (Keep your existing modal code here) -->
 <div id="factModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -129,22 +121,17 @@
     </div>
 </div>
 
-<!-- SCRIPTS -->
-<!-- 1. AOS Library (Scroll Animations) -->
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<!-- 2. Typed.js (Typing Effect) -->
 <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
 
 <script>
-    // Initialize Animate On Scroll
     AOS.init({
         duration: 800,
         once: true,
         offset: 100
     });
 
-    // Initialize Typing Effect
     var typed = new Typed('#typed-text', {
         strings: ['Power.', 'Transparency.', 'Necessary.', 'ByteHunters.'],
         typeSpeed: 50,
@@ -153,7 +140,6 @@
         loop: true
     });
 
-    // Modal Scripts (Same as before)
     const modal = document.getElementById("factModal");
     function openModal(claim) {
         document.getElementById("modal-text").innerText = claim.text;

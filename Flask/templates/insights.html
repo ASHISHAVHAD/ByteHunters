@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Chart.js CDN -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -24,7 +24,7 @@
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         border: 1px solid #eee;
-        min-height: 350px; /* Ensure card has height */
+        min-height: 350px;
         display: flex;
         flex-direction: column;
     }
@@ -32,12 +32,11 @@
         position: relative;
         flex-grow: 1;
         width: 100%;
-        min-height: 250px; /* Important for Chart.js to render */
+        min-height: 250px;
     }
     h4 { color: #555; margin-bottom: 20px; text-align: center; }
 </style>
 
-<!-- Header -->
 <div class="insights-header">
     <div class="container">
         <h1 data-aos="fade-down">Global Truth Trends</h1>
@@ -48,7 +47,6 @@
 <div class="container">
     
     {% if stats.total == 0 %}
-        <!-- Fallback if DB is empty -->
         <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 10px;">
             <h3>No Data Available Yet 📉</h3>
             <p>Run some verification analyses to populate these charts!</p>
@@ -56,10 +54,8 @@
         </div>
     {% else %}
 
-        <!-- Top Row: Pie & Bar Charts -->
         <div class="stat-card-grid">
             
-            <!-- 1. Validity Distribution -->
             <div class="chart-card" data-aos="fade-right">
                 <h4>Overall Verdict Distribution</h4>
                 <div class="chart-container">
@@ -70,7 +66,6 @@
                 </p>
             </div>
 
-            <!-- 2. Category Breakdown -->
             <div class="chart-card" data-aos="fade-left">
                 <h4>Misinformation by Topic</h4>
                 <div class="chart-container">
@@ -82,7 +77,6 @@
             </div>
         </div>
 
-        <!-- Bottom Row: Scatter Plot -->
         <div class="chart-card" data-aos="fade-up" style="margin-bottom: 60px;">
             <h4>AI Confidence vs. Source Credibility</h4>
             <div class="chart-container" style="height: 400px;">
@@ -101,7 +95,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        // --- 1. Validity Doughnut Chart ---
         const ctxValidity = document.getElementById('validityChart').getContext('2d');
         new Chart(ctxValidity, {
             type: 'doughnut',
@@ -121,7 +114,6 @@
             }
         });
 
-        // --- 2. Category Bar Chart (Stacked) ---
         const ctxCat = document.getElementById('categoryChart').getContext('2d');
         new Chart(ctxCat, {
             type: 'bar',
@@ -152,15 +144,12 @@
             }
         });
 
-        // --- 3. Scatter Plot (Confidence vs Credibility) ---
-        // Prepare data in JS format
         const scatterRaw = {{ stats.scatter | tojson | safe }};
         
         const scatterData = scatterRaw.map(item => ({
-            x: item.x, // Confidence
-            y: item.y, // Credibility
-            r: 6,      // Dot radius
-            // Logic to color code the dots based on validity
+            x: item.x,
+            y: item.y,
+            r: 6,
             backgroundColor: item.val === 'True' ? 'rgba(46, 213, 115, 0.6)' : 
                              (item.val === 'False' ? 'rgba(255, 71, 87, 0.6)' : 'rgba(255, 165, 2, 0.6)')
         }));
@@ -172,7 +161,7 @@
                 datasets: [{
                     label: 'Analysis Points',
                     data: scatterData,
-                    backgroundColor: '#00bcd4' // Default fallback color
+                    backgroundColor: '#00bcd4'
                 }]
             },
             options: {

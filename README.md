@@ -1,8 +1,3 @@
-code
-Markdown
-download
-content_copy
-expand_less
 # ByteHunters - Automated Fact Verification System
 
 ## Project Overview
@@ -63,58 +58,48 @@ The project follows a modular architecture to separate concerns between routing,
     ├── results.html        # Display of verification analysis
     ├── dashboard.html      # User history management
     └── insights.html       # Data visualizations and statistics
-Detailed File Roles
+```
 
-app.py: Initializes the Flask app, connects to the MySQL database, manages user sessions (Flask-Login), and defines all URL routes. It coordinates data flow between the frontend and the utility modules.
+### Detailed File Roles
 
-utils/scraper.py: Contains the extract_text_from_url function. It handles HTTP requests, parses HTML, removes script/style tags, and truncates text to fit LLM context limits.
+*   **app.py:** Initializes the Flask app, connects to the MySQL database, manages user sessions (Flask-Login), and defines all URL routes. It coordinates data flow between the frontend and the utility modules.
+*   **utils/scraper.py:** Contains the `extract_text_from_url` function. It handles HTTP requests, parses HTML, removes script/style tags, and truncates text to fit LLM context limits.
+*   **utils/llm_api.py:** Manages the connection to Google Gemini. It constructs the prompt instructions, sends the payload, and parses the returned JSON structure containing claims, verdicts, and reasoning.
+*   **utils/report_gen.py:** Uses `ReportLab` and `Matplotlib` to programmatically draw a PDF document. It generates pie charts for validity distribution and formats the claim data into a readable table layout.
+*   **templates/base.html:** Acts as the master template. All other pages extend this file to ensure consistent navigation bars, footers, and script loading.
 
-utils/llm_api.py: Manages the connection to Google Gemini. It constructs the prompt instructions, sends the payload, and parses the returned JSON structure containing claims, verdicts, and reasoning.
+## Installation and Setup
 
-utils/report_gen.py: Uses ReportLab and Matplotlib to programmatically draw a PDF document. It generates pie charts for validity distribution and formats the claim data into a readable table layout.
+### Prerequisites
 
-templates/base.html: Acts as the master template. All other pages extend this file to ensure consistent navigation bars, footers, and script loading.
+*   Python 3.8 or higher
+*   MySQL Server installed and running
 
-Installation and Setup
-Prerequisites
+### Step 1: Clone the Repository
 
-Python 3.8 or higher
-
-MySQL Server installed and running
-
-Step 1: Clone the Repository
-code
-Bash
-download
-content_copy
-expand_less
+```bash
 git clone <repository-url>
 cd bytehunters
-Step 2: Install Dependencies
+```
+
+### Step 2: Install Dependencies
 
 It is recommended to use a virtual environment.
 
-code
-Bash
-download
-content_copy
-expand_less
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-If requirements.txt is not provided, install the following packages manually:
-flask flask-mysqldb flask-login werkzeug python-dotenv google-genai beautifulsoup4 requests reportlab matplotlib
+*If requirements.txt is not provided, install the following packages manually:*
+`flask flask-mysqldb flask-login werkzeug python-dotenv google-genai beautifulsoup4 requests reportlab matplotlib`
 
-Step 3: Database Configuration
+### Step 3: Database Configuration
 
 Open your MySQL client and execute the following SQL commands to set up the database schema:
 
-code
-SQL
-download
-content_copy
-expand_less
+```sql
 CREATE DATABASE bytehunters_db;
 USE bytehunters_db;
 
@@ -135,58 +120,41 @@ CREATE TABLE verification_history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-Step 4: Environment Variables
+```
 
-Create a file named .env in the root directory and add the following configuration keys:
+### Step 4: Environment Variables
 
-code
-Ini
-download
-content_copy
-expand_less
+Create a file named `.env` in the root directory and add the following configuration keys:
+
+```ini
 GEMINI_API_KEY=your_google_gemini_api_key
 MYSQL_PASSWORD=your_mysql_root_password
 FLASK_SECRET_KEY=your_random_secret_string
-Step 5: Run the Application
-code
-Bash
-download
-content_copy
-expand_less
+```
+
+### Step 5: Run the Application
+
+```bash
 python app.py
+```
 
-The application will start on http://127.0.0.1:5000/.
+The application will start on `http://127.0.0.1:5000/`.
 
-System Workflow
+## System Workflow
 
-Ingestion: The user logs in and submits a URL or text via the Input Page.
+1.  **Ingestion:** The user logs in and submits a URL or text via the Input Page.
+2.  **Processing:**
+    *   If a URL is provided, `scraper.py` fetches the HTML and strips it down to clean text.
+    *   The clean text is passed to `llm_api.py`.
+3.  **Analysis:** The Google Gemini API processes the text. It identifies claims, searches the internal knowledge base (and internet via the model's capabilities), and returns a JSON object containing verdicts, confidence scores, and reasoning.
+4.  **Presentation:** The JSON data is rendered on the Results Page using Jinja2 templates.
+5.  **Persistence:** If the user clicks "Save," the raw input and the JSON result are serialized and stored in the MySQL `verification_history` table.
+6.  **Reporting:** If the user requests a PDF, `report_gen.py` reads the JSON data, generates a chart in memory, draws the PDF layout, and serves the file as a download.
 
-Processing:
+## Contributors
 
-If a URL is provided, scraper.py fetches the HTML and strips it down to clean text.
+**ByteHunters Team** (IIT Bombay)
 
-The clean text is passed to llm_api.py.
-
-Analysis: The Google Gemini API processes the text. It identifies claims, searches the internal knowledge base (and internet via the model's capabilities), and returns a JSON object containing verdicts, confidence scores, and reasoning.
-
-Presentation: The JSON data is rendered on the Results Page using Jinja2 templates.
-
-Persistence: If the user clicks "Save," the raw input and the JSON result are serialized and stored in the MySQL verification_history table.
-
-Reporting: If the user requests a PDF, report_gen.py reads the JSON data, generates a chart in memory, draws the PDF layout, and serves the file as a download.
-
-Contributors
-
-ByteHunters Team (IIT Bombay)
-
-Lead Full Stack: [Name]
-
-AI/LLM Architect: [Name]
-
-Data Engineer: [Name]
-
-code
-Code
-download
-content_copy
-expand_more
+*   **Backend Developer:** Ashish Avhad
+*   **Frontend Developer:** Avirup Chakraborty
+*   **Python Developer:** Shivam Singh
