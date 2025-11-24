@@ -79,7 +79,7 @@ The project follows a modular architecture to separate concerns between routing,
 
 ```bash
 git clone https://github.com/ASHISHAVHAD/ByteHunters
-cd bytehunters
+cd ByteHunters
 ```
 
 ### Step 2: Install Dependencies
