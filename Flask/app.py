@@ -223,17 +223,14 @@ def about():
 def insights():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     
-    # 1. Fetch all historical data (LIMIT to last 1000 for performance if needed)
     cursor.execute("SELECT json_result, created_at FROM verification_history")
     rows = cursor.fetchall()
     cursor.close()
 
-    # 2. Process Data
     total_claims = 0
     validity_counts = {'True': 0, 'False': 0, 'Uncertain': 0}
-    category_stats = {} # {'Health': {'True': 5, 'False': 10}, ...}
-    scatter_data = []   # [{'x': confidence, 'y': avg_source_credibility, 'r': 5}]
-
+    category_stats = {}
+    scatter_data = []
     for row in rows:
         try:
             data = row['json_result']
@@ -244,34 +241,29 @@ def insights():
             for claim in claims:
                 total_claims += 1
                 
-                # A. Validity Counts
                 val = claim.get('claim_validity', 'Uncertain')
                 if val in validity_counts:
                     validity_counts[val] += 1
-                
-                # B. Category Stats
+
                 cat = claim.get('category', 'General').capitalize()
                 if cat not in category_stats:
                     category_stats[cat] = {'True': 0, 'False': 0, 'Uncertain': 0}
                 if val in category_stats[cat]:
                     category_stats[cat][val] += 1
 
-                # C. Scatter Data (Confidence vs Source Credibility)
                 sources = claim.get('sources_cited', [])
                 if sources:
-                    # Calculate average credibility of sources for this claim
+
                     avg_cred = sum([s.get('source_credibility', 0) for s in sources]) / len(sources)
                     scatter_data.append({
                         'x': claim.get('confidence', 0),
                         'y': int(avg_cred),
-                        'val': val # To color code dots
+                        'val': val
                     })
                     
         except Exception as e:
             continue
 
-    # Prepare Category Data for Chart.js (Top 5 categories)
-    # Sort categories by total activity
     sorted_cats = sorted(category_stats.keys(), key=lambda k: sum(category_stats[k].values()), reverse=True)[:5]
     cat_labels = sorted_cats
     cat_true = [category_stats[k]['True'] for k in sorted_cats]
