@@ -78,7 +78,7 @@ The project follows a modular architecture to separate concerns between routing,
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ASHISHAVHAD/ByteHunters
 cd bytehunters
 ```
 
