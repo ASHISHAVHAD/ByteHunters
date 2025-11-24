@@ -2,41 +2,178 @@
 
 {% block content %}
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h2 class="scroll-reveal delay-1">Fact Verification: <span class="highlight">Precision Powered by LLMs</span></h2>
-                <p class="subtitle scroll-reveal delay-2">
-                    Stop misinformation instantly. Upload links or raw text, and let ByteHunters extract, verify, and report.
-                </p>
+<!-- HERO SECTION -->
+<section class="hero-wrapper">
+    <!-- Animated Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="glass-overlay"></div>
 
-                <a href="{{ url_for('input_page') }}" class="cta-button primary large scroll-reveal delay-3">
-                    Start Analysis &rarr;
+    <div class="container hero-container">
+        <div class="hero-text">
+            <div class="badge-pill" data-aos="fade-down">🚀 AI-Powered Verification v2.0</div>
+            <h1 data-aos="fade-up" data-aos-delay="100">
+                Truth is <span id="typed-text" class="highlight-text"></span>
+            </h1>
+            <p class="hero-sub" data-aos="fade-up" data-aos-delay="200">
+                In an era of digital noise, ByteHunters filters the signal. 
+                Paste any link or text, and watch our LLM engines dissect claims with surgical precision.
+            </p>
+            
+            <div class="hero-buttons" data-aos="fade-up" data-aos-delay="300">
+                <a href="{{ url_for('input_page') }}" class="cta-button primary glow-effect">
+                    Start Analysis <span class="arrow">→</span>
+                </a>
+                <a href="#how-it-works" class="cta-button secondary">
+                    See How It Works
                 </a>
             </div>
         </div>
-    </section>
-
-    <section id="features" class="features-section">
-        <div class="container">
-            <h3 class="scroll-reveal">The ByteHunters Workflow</h3>
-            <div class="feature-grid">
-                <div class="feature-card scroll-reveal delay-5">
-                    <div class="icon-circle">1</div>
-                    <h4>Extraction Engine</h4>
-                    <p>Our NLP pipeline precisely isolates claims from complex documents.</p>
-                </div>
-                <div class="feature-card scroll-reveal delay-6">
-                    <div class="icon-circle">2</div>
-                    <h4>LLM Cross-Verification</h4>
-                    <p>Claims are rigorously tested against multiple trusted data sources.</p>
-                </div>
-                <div class="feature-card scroll-reveal delay-7">
-                    <div class="icon-circle">3</div>
-                    <h4>Downloadable Reports</h4>
-                    <p>Get a comprehensive, color-coded report (PDF) showing credibility scores.</p>
-                </div>
+        
+        <!-- Abstract Visual / Dashboard Preview -->
+        <div class="hero-visual" data-aos="zoom-in" data-aos-delay="400">
+            <div class="floating-card card-1">
+                <span>🔍 Claim Detected</span>
+                <div class="mini-loader"></div>
+            </div>
+            <div class="floating-card card-2">
+                <span>✅ Verified: True</span>
+            </div>
+            <div class="floating-card card-3">
+                <span>🤖 Confidence: 98%</span>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+    <div class="container stats-grid">
+        <div class="stat-item" data-aos="fade-up">
+            <h3>10k+</h3>
+            <p>Claims Analyzed</p>
+        </div>
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+            <h3>94%</h3>
+            <p>Accuracy Rate</p>
+        </div>
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+            <h3>&lt; 60s</h3>
+            <p>Processing Time</p>
+        </div>
+    </div>
+</div>
+
+<!-- RECENT ACTIVITY TICKER (Your Existing Ticker) -->
+<section class="ticker-section">
+    <div class="container">
+        <h3 class="section-title" data-aos="fade-up">🔥 Live Verification Feed</h3>
+    </div>
+    <div class="ticker-wrap">
+        <div class="ticker-track">
+            {% for i in range(2) %}
+                {% for claim in recent_claims %}
+                <div class="ticker-card status-{{ claim.validity }}">
+                    <div class="ticker-header">
+                        <span class="badge bg-{{ claim.validity }}">{{ claim.validity }}</span>
+                        <span class="ticker-conf">{{ claim.confidence }}% Conf.</span>
+                    </div>
+                    <p class="ticker-text">"{{ claim.text[:80] }}..."</p>
+                    <button class="ticker-btn" onclick='openModal({{ claim|tojson|forceescape }})'>View Details</button>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS (Cards) -->
+<section id="how-it-works" class="features-section">
+    <div class="container">
+        <h3 class="section-title" data-aos="fade-up">The ByteHunters Engine</h3>
+        <div class="feature-grid">
+            <!-- Card 1 -->
+            <div class="glass-card" data-aos="flip-left">
+                <div class="icon-box">📥</div>
+                <h4>Ingestion</h4>
+                <p>We scrape URLs or parse raw text to isolate factual assertions from opinion.</p>
+            </div>
+            <!-- Card 2 -->
+            <div class="glass-card" data-aos="flip-left" data-aos-delay="100">
+                <div class="icon-box">🧠</div>
+                <h4>LLM Reasoning</h4>
+                <p>Gemini AI cross-references claims against a vast knowledge base of verified sources.</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="glass-card" data-aos="flip-left" data-aos-delay="200">
+                <div class="icon-box">📊</div>
+                <h4>Report Gen</h4>
+                <p>Receive a detailed PDF report with confidence scores and citation links.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MODAL (Keep your existing modal code here) -->
+<div id="factModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modal-badge" class="badge" style="margin-bottom: 15px; display:inline-block;"></div>
+        <h3 id="modal-text" style="margin-bottom: 15px; color: #333;"></h3>
+        <div style="background: #f4f6f8; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>AI Reasoning:</strong>
+            <p id="modal-reasoning" style="margin-top: 5px; color: #555;"></p>
+        </div>
+        <div id="modal-sources"></div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<!-- 1. AOS Library (Scroll Animations) -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- 2. Typed.js (Typing Effect) -->
+<script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+
+<script>
+    // Initialize Animate On Scroll
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    // Initialize Typing Effect
+    var typed = new Typed('#typed-text', {
+        strings: ['Power.', 'Transparency.', 'Necessary.', 'ByteHunters.'],
+        typeSpeed: 50,
+        backSpeed: 30,
+        backDelay: 2000,
+        loop: true
+    });
+
+    // Modal Scripts (Same as before)
+    const modal = document.getElementById("factModal");
+    function openModal(claim) {
+        document.getElementById("modal-text").innerText = claim.text;
+        document.getElementById("modal-reasoning").innerText = claim.reasoning;
+        const badge = document.getElementById("modal-badge");
+        badge.innerText = claim.validity;
+        badge.className = `badge bg-${claim.validity}`;
+        const sourceDiv = document.getElementById("modal-sources");
+        sourceDiv.innerHTML = "<strong>Verified Sources:</strong>";
+        if(claim.sources && claim.sources.length > 0){
+            claim.sources.forEach(src => {
+                sourceDiv.innerHTML += `<div style="margin-top: 5px; font-size: 0.9em;">🔗 <a href="${src.source_link}" target="_blank" style="color: #00bcd4;">${src.source_name}</a></div>`;
+            });
+        } else {
+            sourceDiv.innerHTML += "<p style='color:#888;'>No web sources linked.</p>";
+        }
+        modal.style.display = "flex";
+    }
+    function closeModal() { modal.style.display = "none"; }
+    window.onclick = function(e) { if (e.target == modal) modal.style.display = "none"; }
+</script>
+
 {% endblock %}

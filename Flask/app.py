@@ -43,7 +43,40 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    # Fetch last 10 reports
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT json_result, created_at FROM verification_history ORDER BY created_at DESC LIMIT 10")
+    recent_reports = cursor.fetchall()
+    cursor.close()
+
+    recent_claims = []
+    for report in recent_reports:
+        try:
+            # Parse JSON if it's stored as a string
+            data = report['json_result']
+            if isinstance(data, str):
+                data = json.loads(data)
+            
+            # Check if claims exist
+            if data.get('claims') and isinstance(data['claims'], list):
+                # --- CHANGE IS HERE: Select up to the first 5 claims ---
+                top_claims = data['claims'][:5] 
+                
+                for claim in top_claims:
+                    recent_claims.append({
+                        'text': claim.get('claim_text'),
+                        'validity': claim.get('claim_validity'),
+                        'reasoning': claim.get('reasoning'),
+                        'confidence': claim.get('confidence'),
+                        'sources': claim.get('sources_cited', []),
+                        'date': report['created_at']
+                    })
+                    
+        except Exception as e:
+            print(f"Error parsing report: {e}")
+            continue 
+
+    return render_template("index.html", recent_claims=recent_claims)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -185,6 +218,73 @@ def delete_result(report_id):
 @app.route('/about')
 def about():
     return render_template("about.html")
+
+@app.route('/insights')
+def insights():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # 1. Fetch all historical data (LIMIT to last 1000 for performance if needed)
+    cursor.execute("SELECT json_result, created_at FROM verification_history")
+    rows = cursor.fetchall()
+    cursor.close()
+
+    # 2. Process Data
+    total_claims = 0
+    validity_counts = {'True': 0, 'False': 0, 'Uncertain': 0}
+    category_stats = {} # {'Health': {'True': 5, 'False': 10}, ...}
+    scatter_data = []   # [{'x': confidence, 'y': avg_source_credibility, 'r': 5}]
+
+    for row in rows:
+        try:
+            data = row['json_result']
+            if isinstance(data, str):
+                data = json.loads(data)
+            
+            claims = data.get('claims', [])
+            for claim in claims:
+                total_claims += 1
+                
+                # A. Validity Counts
+                val = claim.get('claim_validity', 'Uncertain')
+                if val in validity_counts:
+                    validity_counts[val] += 1
+                
+                # B. Category Stats
+                cat = claim.get('category', 'General').capitalize()
+                if cat not in category_stats:
+                    category_stats[cat] = {'True': 0, 'False': 0, 'Uncertain': 0}
+                if val in category_stats[cat]:
+                    category_stats[cat][val] += 1
+
+                # C. Scatter Data (Confidence vs Source Credibility)
+                sources = claim.get('sources_cited', [])
+                if sources:
+                    # Calculate average credibility of sources for this claim
+                    avg_cred = sum([s.get('source_credibility', 0) for s in sources]) / len(sources)
+                    scatter_data.append({
+                        'x': claim.get('confidence', 0),
+                        'y': int(avg_cred),
+                        'val': val # To color code dots
+                    })
+                    
+        except Exception as e:
+            continue
+
+    # Prepare Category Data for Chart.js (Top 5 categories)
+    # Sort categories by total activity
+    sorted_cats = sorted(category_stats.keys(), key=lambda k: sum(category_stats[k].values()), reverse=True)[:5]
+    cat_labels = sorted_cats
+    cat_true = [category_stats[k]['True'] for k in sorted_cats]
+    cat_false = [category_stats[k]['False'] for k in sorted_cats]
+    
+    stats = {
+        'total': total_claims,
+        'validity': validity_counts,
+        'categories': {'labels': cat_labels, 'true': cat_true, 'false': cat_false},
+        'scatter': scatter_data
+    }
+
+    return render_template('insights.html', stats=stats)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -23,7 +23,7 @@ def verify_claims_with_gemini(text):
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""Extract claims from this text and verify them. classify each claim in one of the following ways: True, False or Uncertain. Search internet for evidence supporting or opposing the claim. Return the response in JSON format. In json object return claim text, claim validity, sources used for verifying claim, confidence on verdict(range 1 to 100), category of claim (health, finance, sports, etc.). For each source provide source name, url, text from source used for verification, source credibility(range 0-100).  Also provide some reasoning to justify your verdict."""),
+                types.Part.from_text(text="""Extract claims from this text and verify them. classify each claim in one of the following ways: True, False or Uncertain. Search internet for evidence supporting or opposing the claim. Return the response in JSON format. In json object return claim text, claim validity, sources used for verifying claim, confidence on verdict(range 1 to 100), category of claim (health, finance, sports, etc.). For each source provide source name, url, text from source used for verification, source credibility(range 0-100).  Also provide some reasoning to justify your verdict. Do not provide broken links for sources."""),
                 types.Part.from_text(text=f"{text}"),
             ],
         ),
