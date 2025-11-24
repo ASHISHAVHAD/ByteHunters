@@ -725,3 +725,60 @@ section {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
+
+.stats-bar {
+    background: #1a1a2e;
+    color: white;
+    padding: 40px 0;
+    margin-top: -50px; /* Overlap hero */
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.stat-item h3 { font-size: 2.5em; color: var(--deep-blue); margin-bottom: 5px; }
+.stat-item p { font-size: 1em; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+
+.section-title {
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 50px;
+    color: #1a1a2e;
+}
+
+.glass-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: 0.3s;
+}
+
+.glass-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    background: white;
+    box-shadow: 0 20px 40px rgba(0, 188, 212, 0.15);
+}
+
+.icon-box {
+    font-size: 3em;
+    margin-bottom: 20px;
+    background: #f0f8ff;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+}
+
+.ticker-section { background: #fff; padding-top: 80px; padding-bottom: 80px; }
