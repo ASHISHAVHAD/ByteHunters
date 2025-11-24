@@ -695,3 +695,33 @@ section {
     background: #1a1a2e;
     color: #fff !important;
 }
+
+.hero-visual {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    display: none; 
+}
+@media (min-width: 900px) { .hero-visual { display: block; } }
+
+.floating-card {
+    position: absolute;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: floatCard 6s infinite ease-in-out;
+}
+
+.card-1 { top: 20%; left: 0; border-left: 5px solid #00bcd4; animation-delay: 0s; }
+.card-2 { top: 50%; right: -20px; border-left: 5px solid #2ed573; animation-delay: 2s; }
+.card-3 { bottom: 10%; left: 20px; border-left: 5px solid #ff9f43; animation-delay: 4s; }
+
+@keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
