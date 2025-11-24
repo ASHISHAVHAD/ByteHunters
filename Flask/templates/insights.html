@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .insights-header {
+        background: #1a1a2e;
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .stat-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+    .chart-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        min-height: 350px; /* Ensure card has height */
+        display: flex;
+        flex-direction: column;
+    }
+    .chart-container {
+        position: relative;
+        flex-grow: 1;
+        width: 100%;
+        min-height: 250px; /* Important for Chart.js to render */
+    }
+    h4 { color: #555; margin-bottom: 20px; text-align: center; }
+</style>
+
+<!-- Header -->
+<div class="insights-header">
+    <div class="container">
+        <h1 data-aos="fade-down">Global Truth Trends</h1>
+        <p data-aos="fade-up">Analyzing {{ stats.total }} claims processed by ByteHunters.</p>
+    </div>
+</div>
+
+<div class="container">
+    
+    {% if stats.total == 0 %}
+        <!-- Fallback if DB is empty -->
+        <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 10px;">
+            <h3>No Data Available Yet 📉</h3>
+            <p>Run some verification analyses to populate these charts!</p>
+            <a href="{{ url_for('input_page') }}" class="cta-button primary" style="margin-top: 20px; display:inline-block;">Start Analyzing</a>
+        </div>
+    {% else %}
+
+        <!-- Top Row: Pie & Bar Charts -->
+        <div class="stat-card-grid">
+            
+            <!-- 1. Validity Distribution -->
+            <div class="chart-card" data-aos="fade-right">
+                <h4>Overall Verdict Distribution</h4>
+                <div class="chart-container">
+                    <canvas id="validityChart"></canvas>
+                </div>
+                <p style="text-align: center; font-size: 0.9em; color: #888; margin-top: 15px;">
+                    See the ratio of facts vs. misinformation.
+                </p>
+            </div>
+
+            <!-- 2. Category Breakdown -->
+            <div class="chart-card" data-aos="fade-left">
+                <h4>Misinformation by Topic</h4>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <p style="text-align: center; font-size: 0.9em; color: #888; margin-top: 15px;">
+                    Which topics generate the most False claims?
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Scatter Plot -->
+        <div class="chart-card" data-aos="fade-up" style="margin-bottom: 60px;">
+            <h4>AI Confidence vs. Source Credibility</h4>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="scatterChart"></canvas>
+            </div>
+            <p style="text-align: center; font-size: 0.9em; color: #888; margin-top: 15px;">
+                <strong>Insight:</strong> Do high-confidence AI predictions correlate with high-quality sources?
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% if stats.total > 0 %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 1. Validity Doughnut Chart ---
+        const ctxValidity = document.getElementById('validityChart').getContext('2d');
+        new Chart(ctxValidity, {
+            type: 'doughnut',
+            data: {
+                labels: ['True', 'False', 'Uncertain'],
+                datasets: [{
+                    data: [{{ stats.validity['True'] }}, {{ stats.validity['False'] }}, {{ stats.validity['Uncertain'] }}],
+                    backgroundColor: ['#2ed573', '#ff4757', '#ffa502'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // --- 2. Category Bar Chart (Stacked) ---
+        const ctxCat = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctxCat, {
+            type: 'bar',
+            data: {
+                labels: {{ stats.categories.labels | tojson | safe }},
+                datasets: [
+                    {
+                        label: 'True Claims',
+                        data: {{ stats.categories.true | tojson | safe }},
+                        backgroundColor: '#2ed573',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'False Claims',
+                        data: {{ stats.categories.false | tojson | safe }},
+                        backgroundColor: '#ff4757',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+
+        // --- 3. Scatter Plot (Confidence vs Credibility) ---
+        // Prepare data in JS format
+        const scatterRaw = {{ stats.scatter | tojson | safe }};
+        
+        const scatterData = scatterRaw.map(item => ({
+            x: item.x, // Confidence
+            y: item.y, // Credibility
+            r: 6,      // Dot radius
+            // Logic to color code the dots based on validity
+            backgroundColor: item.val === 'True' ? 'rgba(46, 213, 115, 0.6)' : 
+                             (item.val === 'False' ? 'rgba(255, 71, 87, 0.6)' : 'rgba(255, 165, 2, 0.6)')
+        }));
+
+        const ctxScatter = document.getElementById('scatterChart').getContext('2d');
+        new Chart(ctxScatter, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Analysis Points',
+                    data: scatterData,
+                    backgroundColor: '#00bcd4' // Default fallback color
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'AI Confidence Score (%)' },
+                        min: 0, max: 100 
+                    },
+                    y: { 
+                        title: { display: true, text: 'Source Credibility Score' },
+                        min: 0, max: 100 
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Conf: ${context.raw.x}%, Cred: ${context.raw.y}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+
+{% endblock %}
