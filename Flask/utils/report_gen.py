@@ -10,12 +10,11 @@ from reportlab.graphics.shapes import Drawing, Rect, Circle
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
 
 import matplotlib
-matplotlib.use('Agg') # Non-interactive backend
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 from datetime import datetime
 
-# --- Configuration & Colors ---
 HEX_PRIMARY = '#1a1a2e'   # Dark Blue
 HEX_ACCENT  = '#00bcd4'   # Cyan
 HEX_TRUE    = '#2ed573'   # Green
@@ -23,7 +22,6 @@ HEX_FALSE   = '#ff4757'   # Red
 HEX_UNCERTAIN = '#ffa502' # Orange
 HEX_BG      = '#f4f6f8'   # Light Grey
 
-# ReportLab Color Objects
 COLOR_PRIMARY = colors.HexColor(HEX_PRIMARY)
 COLOR_ACCENT  = colors.HexColor(HEX_ACCENT)
 COLOR_TRUE    = colors.HexColor(HEX_TRUE)
@@ -37,7 +35,6 @@ def get_status_props(status):
     if status == 'False': return COLOR_FALSE, HEX_FALSE
     return COLOR_UNCERTAIN, HEX_UNCERTAIN
 
-# --- 1. Visualization Generators ---
 
 def create_validity_chart(json_data):
     """Generates a high-res donut chart for the cover page."""
@@ -49,11 +46,9 @@ def create_validity_chart(json_data):
         val = c.get('claim_validity', 'Uncertain')
         counts[val] = counts.get(val, 0) + 1
 
-    # Filter zeros
     labels = [k for k, v in counts.items() if v > 0]
     sizes = [v for k, v in counts.items() if v > 0]
     
-    # Get colors for matplotlib
     chart_colors = []
     for l in labels:
         _, hex_code = get_status_props(l)
@@ -61,7 +56,7 @@ def create_validity_chart(json_data):
 
     plt.figure(figsize=(5, 4))
     
-    # Donut Chart
+
     wedges, texts, autotexts = plt.pie(
         sizes, labels=labels, autopct='%1.1f%%', 
         startangle=90, colors=chart_colors, pctdistance=0.80,
@@ -98,7 +93,7 @@ def draw_confidence_meter(confidence):
     d.add(Rect(0, 0, bar_w, height, fillColor=fill_col, strokeColor=None, rx=3, ry=3))
     return d
 
-# --- 2. Document Layout ---
+
 
 def generate_pdf(json_data):
     buffer = io.BytesIO()
@@ -111,7 +106,7 @@ def generate_pdf(json_data):
     story = []
     styles = getSampleStyleSheet()
 
-    # --- Custom Styles ---
+
     # Title
     style_cover_title = ParagraphStyle('CoverTitle', parent=styles['Heading1'], fontSize=28, textColor=COLOR_PRIMARY, alignment=TA_CENTER, leading=32)
     style_cover_sub = ParagraphStyle('CoverSub', parent=styles['Normal'], fontSize=12, textColor=colors.gray, alignment=TA_CENTER)
@@ -128,9 +123,9 @@ def generate_pdf(json_data):
     # Links
     style_link = ParagraphStyle('Link', parent=styles['Normal'], fontSize=9, textColor=COLOR_ACCENT)
 
-    # --- PAGE 1: COVER PAGE ---
+  
     
-    # Header Logo/Title
+    
     story.append(Spacer(1, 0.5*inch))
     story.append(Paragraph("BYTE HUNTERS", 
                            ParagraphStyle('Logo', parent=styles['Normal'], fontSize=10, textColor=colors.gray, alignment=TA_CENTER, spaceAfter=20)))
@@ -167,7 +162,7 @@ def generate_pdf(json_data):
     
     story.append(PageBreak())
 
-    # --- PAGE 2+: DETAILED CLAIMS ---
+    
     
     story.append(Paragraph("Detailed Analysis", 
                  ParagraphStyle('H2', parent=styles['Heading2'], fontSize=18, textColor=COLOR_PRIMARY, spaceAfter=20)))
@@ -181,7 +176,7 @@ def generate_pdf(json_data):
         rl_color, _ = get_status_props(validity)
         confidence = claim.get('confidence', 0)
         
-        # 2. Header Row (Colored Bar)
+            # 2. Header Row (Colored Bar)
         # We use a table with a background color to act as the header
         header_content = [
             [Paragraph(f"CLAIM #{i}", style_claim_header), 
@@ -198,10 +193,10 @@ def generate_pdf(json_data):
         ]))
 
         # 3. Main Content Body
-        # Text
+                # Text
         p_text = Paragraph(f'"{claim.get("claim_text")}"', style_claim_text)
         
-        # Meta Data Table (Category | Confidence)
+              # Meta Data Table (Category | Confidence)
         meter = draw_confidence_meter(confidence)
         meta_data = [
             [Paragraph("CATEGORY", style_label), Paragraph("AI CONFIDENCE", style_label)],
@@ -215,7 +210,7 @@ def generate_pdf(json_data):
             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
         ]))
 
-        # Reasoning
+        
         p_reason = Paragraph(f"<b>AI Analysis:</b> {claim.get('reasoning')}", style_reasoning)
         
         # Sources
@@ -228,8 +223,8 @@ def generate_pdf(json_data):
         else:
             source_flow.append(Paragraph("• No specific web sources cited.", style_link))
 
-        # 4. Container Table for Body
-        # This holds the Text, Meta, Reasoning, and Sources inside a border
+             # 4. Container Table for Body
+                     # This holds the Text, Meta, Reasoning, and Sources inside a border
         body_elements = [
             [p_text],
             [t_meta],
@@ -248,12 +243,11 @@ def generate_pdf(json_data):
             ('BACKGROUND', (0,2), (0,2), colors.whitesmoke), # Grey background for reasoning row
         ]))
 
-        # 5. Assemble Card
-        # Keep header and body together on the same page
+    
         card_flow = [t_header, t_body, Spacer(1, 0.3*inch)]
         story.append(KeepTogether(card_flow))
 
-    # --- Build PDF ---
+         #Build PDF
     doc.build(story)
     buffer.seek(0)
     return buffer.read()
