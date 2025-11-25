@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, send_file, Response
+from flask import Flask, render_template, redirect, url_for, request, flash, session, send_file, Response, jsonify
 from flask_mysqldb import MySQL
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,12 +6,16 @@ import MySQLdb.cursors
 import io
 import json
 import os
+from utils.nlp_tools import analyze_sentiment_and_bias
 
 from utils.scraper import extract_text_from_url
 from utils.llm_api import verify_claims_with_gemini
 from utils.report_gen import generate_pdf
+from flask_cors import CORS
+import json
 
 app = Flask(__name__)
+CORS(app)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
@@ -129,7 +133,7 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/input', methods=['GET', 'POST']) 
+@app.route('/input', methods=['GET', 'POST'])
 @login_required
 def input_page():
     if request.method == 'POST':
@@ -142,8 +146,13 @@ def input_page():
         else:
             text_to_analyze = content
 
+        sentiment_data = analyze_sentiment_and_bias(text_to_analyze)
+
         result_json = verify_claims_with_gemini(text_to_analyze)
         
+        if result_json:
+            result_json['meta_analysis'] = sentiment_data
+
         return render_template('results.html', 
                                result=result_json, 
                                original_content=content, 
@@ -273,6 +282,31 @@ def insights():
     }
 
     return render_template('insights.html', stats=stats)
+
+@app.route('/api/verify', methods=['POST'])
+def api_verify():
+    try:
+        data = request.get_json()
+        content = data.get('content')
+        input_type = data.get('input_type', 'text')
+        
+        text_to_analyze = ""
+        if input_type == 'url':
+            text_to_analyze = extract_text_from_url(content)
+        else:
+            text_to_analyze = content
+
+        sentiment = analyze_sentiment_and_bias(text_to_analyze)
+
+        result_json = verify_claims_with_gemini(text_to_analyze)
+        
+        if result_json:
+            result_json['meta_analysis'] = sentiment
+            
+        return jsonify({"status": "success", "data": result_json})
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

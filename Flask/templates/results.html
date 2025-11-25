@@ -30,6 +30,47 @@
             </div>
         </div>
 
+         {% if result.meta_analysis %}
+        <div class="sentiment-dashboard scroll-reveal delay-1">
+            <h3 style="margin-bottom: 20px; color: #1a1a2e;">🛡️ Content Quality Analysis</h3>
+            
+            <div class="sentiment-grid">
+                <!-- Tone Card -->
+                <div class="sentiment-card">
+                    <div class="s-icon">🎭</div>
+                    <div class="s-info">
+                        <span class="s-label">Emotional Tone</span>
+                        <h4 class="s-value">{{ result.meta_analysis.tone_label }}</h4>
+                        <span class="s-score">Polarity: {{ result.meta_analysis.polarity_score }}</span>
+                    </div>
+                </div>
+
+                <!-- Bias Meter Card -->
+                <div class="sentiment-card wide">
+                    <div class="s-info" style="width: 100%;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                            <span class="s-label">Subjectivity Score</span>
+                            <span class="s-value" style="font-size: 1em;">{{ result.meta_analysis.bias_label }}</span>
+                        </div>
+                        
+                        <!-- The Bias Bar -->
+                        <div class="bias-track">
+                            <div class="bias-fill" style="width: {{ result.meta_analysis.subjectivity_score }}%;"></div>
+                            <!-- Marker for 'Objective' zone -->
+                            <div class="bias-marker" style="left: 30%;"></div> 
+                            <div class="bias-marker" style="left: 60%;"></div>
+                        </div>
+                        
+                        <div style="display:flex; justify-content:space-between; font-size: 0.8em; color: #888; margin-top: 5px;">
+                            <span>Objective (Fact)</span>
+                            <span>Subjective (Opinion)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% if result.error %}
             <div class="alert alert-error scroll-reveal">
                 <h3>Analysis Failed</h3>

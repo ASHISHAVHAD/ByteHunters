@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "ByteHunters Fact Verifier",
+  "version": "1.0",
+  "description": "Instantly verify claims and detect bias on any webpage.",
+  "permissions": ["activeTab", "contextMenus", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}

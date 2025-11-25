@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 import io
 from datetime import datetime
 
-HEX_PRIMARY = '#1a1a2e'   # Dark Blue
-HEX_ACCENT  = '#00bcd4'   # Cyan
-HEX_TRUE    = '#2ed573'   # Green
-HEX_FALSE   = '#ff4757'   # Red
-HEX_UNCERTAIN = '#ffa502' # Orange
-HEX_BG      = '#f4f6f8'   # Light Grey
+HEX_PRIMARY = '#1a1a2e'
+HEX_ACCENT  = '#00bcd4'
+HEX_TRUE    = '#2ed573'
+HEX_FALSE   = '#ff4757'
+HEX_UNCERTAIN = '#ffa502'
+HEX_BG      = '#f4f6f8'
 
 COLOR_PRIMARY = colors.HexColor(HEX_PRIMARY)
 COLOR_ACCENT  = colors.HexColor(HEX_ACCENT)
@@ -80,10 +80,8 @@ def draw_confidence_meter(confidence):
     height = 6
     d = Drawing(width, height)
     
-    # Background
     d.add(Rect(0, 0, width, height, fillColor=colors.lightgrey, strokeColor=None, rx=3, ry=3))
     
-    # Foreground Color Logic
     fill_col = COLOR_ACCENT
     if confidence < 50: fill_col = COLOR_UNCERTAIN
     if confidence > 90: fill_col = COLOR_TRUE
@@ -98,7 +96,6 @@ def draw_confidence_meter(confidence):
 def generate_pdf(json_data):
     buffer = io.BytesIO()
     
-    # Document Setup with decent margins
     doc = SimpleDocTemplate(
         buffer, pagesize=A4, 
         rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40
@@ -107,24 +104,17 @@ def generate_pdf(json_data):
     styles = getSampleStyleSheet()
 
 
-    # Title
     style_cover_title = ParagraphStyle('CoverTitle', parent=styles['Heading1'], fontSize=28, textColor=COLOR_PRIMARY, alignment=TA_CENTER, leading=32)
     style_cover_sub = ParagraphStyle('CoverSub', parent=styles['Normal'], fontSize=12, textColor=colors.gray, alignment=TA_CENTER)
     
-    # Cards
     style_claim_header = ParagraphStyle('ClaimHeader', parent=styles['Heading3'], fontSize=12, textColor=colors.white, leading=14)
     style_claim_text = ParagraphStyle('ClaimText', parent=styles['Normal'], fontSize=11, textColor=COLOR_PRIMARY, leading=14, spaceAfter=8)
     style_label = ParagraphStyle('Label', parent=styles['Normal'], fontSize=8, textColor=colors.gray)
     style_value = ParagraphStyle('Value', parent=styles['Normal'], fontSize=9, textColor=COLOR_PRIMARY, fontName='Helvetica-Bold')
     
-    # Reasoning Box
     style_reasoning = ParagraphStyle('Reasoning', parent=styles['Normal'], fontSize=10, textColor=colors.darkslategrey, leading=13, backColor=colors.whitesmoke, borderPadding=8)
     
-    # Links
     style_link = ParagraphStyle('Link', parent=styles['Normal'], fontSize=9, textColor=COLOR_ACCENT)
-
-  
-    
     
     story.append(Spacer(1, 0.5*inch))
     story.append(Paragraph("BYTE HUNTERS", 
@@ -135,27 +125,32 @@ def generate_pdf(json_data):
     story.append(Paragraph(f"Generated on {date_str}", style_cover_sub))
     story.append(Spacer(1, 0.5*inch))
 
-    # Summary Chart
     chart = create_validity_chart(json_data)
     if chart:
         story.append(chart)
     
-    # Summary Stats Table
     total_claims = len(json_data.get('claims', []))
     avg_conf = 0
     if total_claims > 0:
         avg_conf = sum(c.get('confidence', 0) for c in json_data['claims']) / total_claims
+    
+    meta = json_data.get('meta_analysis', {})
+    tone = meta.get('tone_label', 'N/A')
+    bias = meta.get('bias_label', 'N/A')
 
-    # Create a nice summary box
     summary_data = [
         [Paragraph("TOTAL CLAIMS", style_label), Paragraph("AVG. CONFIDENCE", style_label)],
-        [Paragraph(str(total_claims), style_cover_title), Paragraph(f"{int(avg_conf)}%", style_cover_title)]
+        [Paragraph(str(total_claims), style_cover_title), Paragraph(f"{int(avg_conf)}%", style_cover_title)],
+        [Paragraph("EMOTIONAL TONE", style_label), Paragraph("SUBJECTIVITY", style_label)],
+        [Paragraph(tone, style_value), Paragraph(bias, style_value)]
     ]
+    
     summary_table = Table(summary_data, colWidths=[2.5*inch, 2.5*inch])
     summary_table.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('TOPPADDING', (0,0), (-1,-1), 15),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 15),
+        ('TOPPADDING', (0,0), (-1,-1), 10),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+        ('LINEBELOW', (0,1), (-1,1), 0.5, colors.lightgrey), # Divider line
     ]))
     story.append(Spacer(1, 0.5*inch))
     story.append(summary_table)
@@ -171,13 +166,10 @@ def generate_pdf(json_data):
 
     for i, claim in enumerate(claims, 1):
         
-        # 1. Setup Data
         validity = claim.get('claim_validity', 'Uncertain')
         rl_color, _ = get_status_props(validity)
         confidence = claim.get('confidence', 0)
         
-            # 2. Header Row (Colored Bar)
-        # We use a table with a background color to act as the header
         header_content = [
             [Paragraph(f"CLAIM #{i}", style_claim_header), 
              Paragraph(validity.upper(), ParagraphStyle('Verdict', parent=style_claim_header, alignment=TA_RIGHT))]
@@ -189,14 +181,11 @@ def generate_pdf(json_data):
             ('RIGHTPADDING', (0,0), (-1,-1), 10),
             ('TOPPADDING', (0,0), (-1,-1), 6),
             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-            ('ROUNDEDCORNERS', [4, 4, 0, 0]), # Top rounded
+            ('ROUNDEDCORNERS', [4, 4, 0, 0]),
         ]))
 
-        # 3. Main Content Body
-                # Text
         p_text = Paragraph(f'"{claim.get("claim_text")}"', style_claim_text)
         
-              # Meta Data Table (Category | Confidence)
         meter = draw_confidence_meter(confidence)
         meta_data = [
             [Paragraph("CATEGORY", style_label), Paragraph("AI CONFIDENCE", style_label)],
@@ -205,7 +194,7 @@ def generate_pdf(json_data):
         t_meta = Table(meta_data, colWidths=[2.5*inch, 2.5*inch])
         t_meta.setStyle(TableStyle([
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('VALIGN', (1,1), (1,1), 'MIDDLE'), # Align meter vertically
+            ('VALIGN', (1,1), (1,1), 'MIDDLE'),
             ('TOPPADDING', (0,0), (-1,-1), 0),
             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
         ]))
@@ -213,7 +202,6 @@ def generate_pdf(json_data):
         
         p_reason = Paragraph(f"<b>AI Analysis:</b> {claim.get('reasoning')}", style_reasoning)
         
-        # Sources
         source_flow = [Spacer(1, 6), Paragraph("SOURCES", style_label)]
         if claim.get('sources_cited'):
             for src in claim.get('sources_cited'):
@@ -223,8 +211,7 @@ def generate_pdf(json_data):
         else:
             source_flow.append(Paragraph("• No specific web sources cited.", style_link))
 
-             # 4. Container Table for Body
-                     # This holds the Text, Meta, Reasoning, and Sources inside a border
+
         body_elements = [
             [p_text],
             [t_meta],
@@ -239,15 +226,14 @@ def generate_pdf(json_data):
             ('RIGHTPADDING', (0,0), (-1,-1), 10),
             ('TOPPADDING', (0,0), (-1,-1), 10),
             ('BOTTOMPADDING', (0,0), (-1,-1), 10),
-            ('ROUNDEDCORNERS', [0, 0, 4, 4]), # Bottom rounded
-            ('BACKGROUND', (0,2), (0,2), colors.whitesmoke), # Grey background for reasoning row
+            ('ROUNDEDCORNERS', [0, 0, 4, 4]),
+            ('BACKGROUND', (0,2), (0,2), colors.whitesmoke),
         ]))
 
     
         card_flow = [t_header, t_body, Spacer(1, 0.3*inch)]
         story.append(KeepTogether(card_flow))
 
-         #Build PDF
     doc.build(story)
     buffer.seek(0)
     return buffer.read()

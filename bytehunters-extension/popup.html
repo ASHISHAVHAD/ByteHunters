@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { 
+      width: 350px;
+      min-height: 400px;
+      font-family: 'Segoe UI', sans-serif; 
+      padding: 15px; 
+      color: #1a1a2e; 
+    }
+    h2 { color: #00bcd4; margin-top: 0; margin-bottom: 10px; }
+    
+    textarea { width: 100%; height: 60px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; resize: none; }
+    
+    .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+    button { flex: 1; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+    #verifyBtn { background: #00bcd4; }
+    #verifyBtn:hover { background: #0097a7; }
+    #verifyUrlBtn { background: #1a1a2e; }
+    #verifyUrlBtn:hover { background: #333; }
+
+    .loader { display: none; text-align: center; margin-top: 20px; color: #666; font-size: 0.9em; }
+
+    #claims-container { 
+      margin-top: 15px; 
+      max-height: 300px;
+      overflow-y: auto; 
+      display: none;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .claim-card {
+      background: #f8f9fa;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border-left: 4px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .status-True { border-left-color: #2ed573; }
+    .status-False { border-left-color: #ff4757; }
+    .status-Uncertain { border-left-color: #ffa502; }
+
+    .claim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    
+    .badge { padding: 2px 6px; border-radius: 4px; color: white; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
+    .bg-True { background: #2ed573; }
+    .bg-False { background: #ff4757; }
+    .bg-Uncertain { background: #ffa502; }
+
+    .conf-score { font-size: 0.75em; color: #888; }
+    .claim-text { font-size: 0.9em; font-weight: 600; color: #333; margin-bottom: 5px; line-height: 1.3; }
+    .claim-reason { font-size: 0.8em; color: #666; font-style: italic; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>ByteHunters</h2>
+    <span style="font-size:0.8em; color:#aaa;">v1.0</span>
+  </div>
+
+  <textarea id="textInput" placeholder="Paste text here to verify..."></textarea>
+  
+  <div class="btn-group">
+    <button id="verifyBtn">Verify Text</button>
+    <button id="verifyUrlBtn">Check Page</button>
+  </div>
+
+  <div class="loader" id="loader">
+    <div style="font-size: 1.5em; margin-bottom: 5px;"></div>
+    Scanning content...<br>This may take a few seconds.
+  </div>
+
+  <div id="claims-container">
+      <!-- Claims Here -->
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
