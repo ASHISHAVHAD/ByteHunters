@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-ByteHunters is a web-based automated fact verification system designed to combat digital misinformation. The application allows users to input web URLs or raw text, from which it extracts factual claims, cross-references them against trusted internet sources using Large Language Models (Google Gemini), and provides a detailed credibility assessment. The system includes features for user authentication, historical data tracking, statistical insights, and downloadable PDF reporting.
+ByteHunters is a web-based automated fact verification system designed to combat digital misinformation. The application allows users to input web URLs or raw text, from which it extracts factual claims, cross-references them against trusted internet sources using Large Language Models (Google Gemini), and provides a detailed credibility assessment. The system includes features for user authentication, historical data tracking, statistical insights, downloadable PDF reporting, and a browser extension for on-the-fly verification.
 
 ## Features
 
 *   **Multi-Modal Input:** Accepts both direct website URLs and raw text blocks for analysis.
+*   **Browser Extension:** A dedicated Chrome/Edge extension allowing users to verify highlighted text or the current page URL instantly without leaving the tab.
 *   **Automated Web Scraping:** Intelligent extraction of relevant text from web pages, stripping away navigation, scripts, and non-essential content.
 *   **LLM-Powered Verification:** Utilizes Google Gemini 2.5 Flash to extract claims, perform semantic reasoning, and assign validity verdicts (True, False, Uncertain).
 *   **Source Citations:** Provides direct links to the web sources used to verify each claim along with a credibility score.
@@ -19,15 +20,16 @@ ByteHunters is a web-based automated fact verification system designed to combat
 
 *   **Backend Framework:** Python Flask
 *   **Database:** MySQL
-*   **AI/LLM Provider:** Google GenAI (Gemini 2.5 Flash)
+*   **AI/LLM Provider:** Google GenAI (Gemini 2.5 Flash), TextBlob
 *   **Frontend:** HTML5, CSS3, JavaScript
+*   **Browser Extension:** Manifest V3, JavaScript
 *   **Visualization:** Chart.js, Matplotlib (server-side for PDFs)
 *   **PDF Generation:** ReportLab
 *   **Web Scraping:** BeautifulSoup4, Requests
 
 ## Project Structure and File Organization
 
-The project follows a modular architecture to separate concerns between routing, utility logic, and frontend presentation.
+The project follows a modular architecture to separate concerns between routing, utility logic, frontend presentation, and extension source code.
 
 ```text
 /project-root
@@ -35,10 +37,17 @@ The project follows a modular architecture to separate concerns between routing,
 ├── .env                    # Environment variables (API keys, DB credentials)
 ├── requirements.txt        # Python dependencies list
 │
+├── bytehunters-extension/  # Source code for Chrome/Edge Extension
+│   ├── manifest.json       # Extension configuration and permissions
+│   ├── popup.html          # Extension UI
+│   ├── popup.js            # Logic for extension buttons and API calls
+│   └── background.js       # Logic for context menu (Right-click) events
+│
 ├── utils/                  # Backend utility modules
 │   ├── __init__.py         # Package initializer
 │   ├── scraper.py          # Logic for fetching and cleaning text from URLs
 │   ├── llm_api.py          # Interface for Google Gemini API communication
+│   ├── nlp_tools.py        # Sentiment and bias analysis logic
 │   └── report_gen.py       # Logic for generating PDF reports with ReportLab
 │
 ├── static/                 # Static assets
@@ -62,11 +71,12 @@ The project follows a modular architecture to separate concerns between routing,
 
 ### Detailed File Roles
 
-*   **app.py:** Initializes the Flask app, connects to the MySQL database, manages user sessions (Flask-Login), and defines all URL routes. It coordinates data flow between the frontend and the utility modules.
+*   **app.py:** Initializes the Flask app, connects to the MySQL database, manages user sessions (Flask-Login), and defines all URL routes (including the API endpoints used by the extension).
+*   **bytehunters-extension/:** Contains the client-side code for the browser extension. `popup.js` captures user input and sends it to the running Flask server via REST API.
 *   **utils/scraper.py:** Contains the `extract_text_from_url` function. It handles HTTP requests, parses HTML, removes script/style tags, and truncates text to fit LLM context limits.
-*   **utils/llm_api.py:** Manages the connection to Google Gemini. It constructs the prompt instructions, sends the payload, and parses the returned JSON structure containing claims, verdicts, and reasoning.
-*   **utils/report_gen.py:** Uses `ReportLab` and `Matplotlib` to programmatically draw a PDF document. It generates pie charts for validity distribution and formats the claim data into a readable table layout.
-*   **templates/base.html:** Acts as the master template. All other pages extend this file to ensure consistent navigation bars, footers, and script loading.
+*   **utils/llm_api.py:** Manages the connection to Google Gemini. It constructs the prompt instructions, sends the payload, and parses the returned JSON structure.
+*   **utils/report_gen.py:** Uses `ReportLab` and `Matplotlib` to programmatically draw a PDF document.
+*   **templates/base.html:** Acts as the master template ensuring consistent navigation and layout across all pages.
 
 ## Installation and Setup
 
@@ -74,6 +84,7 @@ The project follows a modular architecture to separate concerns between routing,
 
 *   Python 3.8 or higher
 *   MySQL Server installed and running
+*   Google Chrome, Microsoft Edge, or any Chromium-based browser
 
 ### Step 1: Clone the Repository
 
@@ -93,7 +104,7 @@ pip install -r requirements.txt
 ```
 
 *If requirements.txt is not provided, install the following packages manually:*
-`flask flask-mysqldb flask-login werkzeug python-dotenv google-genai beautifulsoup4 requests reportlab matplotlib`
+`flask flask-cors flask-mysqldb flask-login werkzeug python-dotenv google-genai beautifulsoup4 requests reportlab matplotlib textblob`
 
 ### Step 3: Database Configuration
 
@@ -138,18 +149,31 @@ FLASK_SECRET_KEY=your_random_secret_string
 python app.py
 ```
 
-The application will start on `http://127.0.0.1:5000/`.
+The application will start on `http://127.0.0.1:5000/`. **Note:** The server must be running for the browser extension to work.
+
+### Step 6: Browser Extension Setup
+
+1.  Open your browser (Chrome or Edge).
+2.  Navigate to the extensions page:
+    *   Chrome: `chrome://extensions`
+    *   Edge: `edge://extensions`
+3.  Enable **Developer Mode** (usually a toggle in the top right corner).
+4.  Click **Load Unpacked**.
+5.  Select the `bytehunters-extension` folder located inside the project directory.
+6.  Pin the ByteHunters icon to your browser toolbar for easy access.
 
 ## System Workflow
 
-1.  **Ingestion:** The user logs in and submits a URL or text via the Input Page.
+1.  **Ingestion:**
+    *   **Web App:** User logs in and submits a URL/text via the Input Page.
+    *   **Extension:** User highlights text and right-clicks "Verify with ByteHunters" or uses the popup menu.
 2.  **Processing:**
-    *   If a URL is provided, `scraper.py` fetches the HTML and strips it down to clean text.
-    *   The clean text is passed to `llm_api.py`.
-3.  **Analysis:** The Google Gemini API processes the text. It identifies claims, searches the internal knowledge base (and internet via the model's capabilities), and returns a JSON object containing verdicts, confidence scores, and reasoning.
-4.  **Presentation:** The JSON data is rendered on the Results Page using Jinja2 templates.
-5.  **Persistence:** If the user clicks "Save," the raw input and the JSON result are serialized and stored in the MySQL `verification_history` table.
-6.  **Reporting:** If the user requests a PDF, `report_gen.py` reads the JSON data, generates a chart in memory, draws the PDF layout, and serves the file as a download.
+    *   `scraper.py` cleans URL content.
+    *   `nlp_tools.py` analyzes sentiment and bias.
+3.  **Analysis:** The Google Gemini API processes the text, identifying claims and searching the internet for evidence.
+4.  **Presentation:** The JSON data is rendered on the Results Page or displayed inside the Extension Popup.
+5.  **Persistence:** Results can be saved to the MySQL `verification_history` table.
+6.  **Reporting:** Users can download a detailed PDF report generated by `report_gen.py`.
 
 ## Contributors
 
